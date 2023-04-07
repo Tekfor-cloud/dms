@@ -21,7 +21,7 @@ class Directory(models.Model):
         for rec in self:
             if rec.storage.save_type == "localfs":
 
-                base_path = rec.storage.local_store_directory_id
+                base_path = rec.storage.local_store_directory
                 if not path.exists(base_path):
                     raise ValidationError(
                         _("Base directory does not exist: %s") % (base_path)
@@ -71,7 +71,7 @@ class Directory(models.Model):
         self.ensure_one()
         if self.is_root_directory:
             if self.storage.save_type == "localfs":
-                return path.join(self.storage.local_store_directory_id, self.name)
+                return path.join(self.storage.local_store_directory, self.name)
             else:
                 return self.name
         else:
@@ -114,7 +114,7 @@ class Directory(models.Model):
             elif values.get("root_storage"):
                 root_stg = self.env["dms.storage"].browse(values["root_storage"])
                 self.check_and_create_fs_directory(
-                    path.join(root_stg.local_store_directory_id, rec.name)
+                    path.join(root_stg.local_store_directory, rec.name)
                 )
 
         return rec

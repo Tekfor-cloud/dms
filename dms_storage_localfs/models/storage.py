@@ -20,7 +20,7 @@ class Storage(models.Model):
         ]
     )
 
-    local_store_directory_id = fields.Char(
+    local_store_directory = fields.Char(
         string="Root directory",
         help="The root directory where files are stored",
     )
@@ -30,17 +30,17 @@ class Storage(models.Model):
         dmsdir_model = self.env["dms.directory"]
         for rec in self:
             if rec.save_type == "localfs":
-                if not path.exists(rec.local_store_directory_id):
+                if not path.exists(rec.local_store_directory):
                     raise ValidationError(
                         _("Base directory does not exist: %s"),
-                        rec.local_store_directory_id,
+                        rec.local_store_directory,
                     )
 
                 # List localfs directories
                 lst_dir = [
                     dir_name
-                    for dir_name in listdir(rec.local_store_directory_id)
-                    if path.isdir(path.join(rec.local_store_directory_id, dir_name))
+                    for dir_name in listdir(rec.local_store_directory)
+                    if path.isdir(path.join(rec.local_store_directory, dir_name))
                 ]
 
                 # List dms directories

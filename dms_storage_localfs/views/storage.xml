@@ -17,7 +17,7 @@
             <group name="save_storage_right"
                 position="inside">
                 <group col="3">
-                    <field name="local_store_directory_id"
+                    <field name="local_store_directory"
                         attrs="{'invisible':[('save_type','!=','localfs')]}" />
                     <button type="object"
                         name="resync_directory"
