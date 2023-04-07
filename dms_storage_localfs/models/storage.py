@@ -46,7 +46,7 @@ class Storage(models.Model):
                 # List dms directories
                 results = dmsdir_model.search(
                     [
-                        ("root_storage", "=", rec.id),
+                        ("root_storage_id", "=", rec.id),
                         ("name", "in", lst_dir),
                         ("is_root_directory", "=", True),
                     ]
@@ -61,7 +61,7 @@ class Storage(models.Model):
                         {
                             "name": dir_name,
                             "is_root_directory": True,
-                            "root_storage": rec.id,
+                            "root_storage_id": rec.id,
                         }
                     )
 

@@ -46,7 +46,7 @@ class Directory(models.Model):
                         ("storage_id", "=", rec.storage_id.id),
                         ("name", "in", lst_dir),
                         ("is_root_directory", "=", False),
-                        ("parent_directory_id", "=", rec.id),
+                        ("parent_id", "=", rec.id),
                     ]
                 )
 
@@ -60,7 +60,7 @@ class Directory(models.Model):
                             "name": dir_name,
                             "company": rec.company[0].id,
                             "is_root_directory": False,
-                            "parent_directory_id": rec.id,
+                            "parent_id": rec.id,
                         }
                     )
 
@@ -75,7 +75,7 @@ class Directory(models.Model):
             else:
                 return self.name
         else:
-            return path.join(self.parent_directory_id.get_full_path(), self.name)
+            return path.join(self.parent_id.get_full_path(), self.name)
 
     def check_and_create_fs_directory(self, fpath):
         if not path.exists(fpath):
@@ -104,10 +104,8 @@ class Directory(models.Model):
         """Create localfs directory"""
         rec = super().create(values)
         if rec.storage_id.save_type == "localfs":
-            if values.get("parent_directory_id"):
-                parent_dir = self.env["dms.directory"].browse(
-                    values["parent_directory_id"]
-                )
+            if values.get("parent_id"):
+                parent_dir = self.env["dms.directory"].browse(values["parent_id"])
                 self.check_and_create_fs_directory(
                     path.join(parent_dir.get_full_path(), rec.name)
                 )

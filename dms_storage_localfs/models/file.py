@@ -17,7 +17,7 @@ class File(models.Model):
 
     def _compute_content(self):
         bin_recs = self.with_context({"bin_size": True})
-        records = bin_recs.filtered(lambda rec: rec.storage.save_type == "localfs")
+        records = bin_recs.filtered(lambda rec: rec.storage_id.save_type == "localfs")
         for record in records.with_context(self.env.context):
             full_path = "{}{}{}".format(
                 record.directory.get_full_path(), sep, record.name
@@ -38,14 +38,14 @@ class File(models.Model):
 
     def _compute_save_type(self):
         bin_recs = self.with_context({"bin_size": True})
-        records = bin_recs.filtered(lambda rec: rec.storage.save_type == "localfs")
+        records = bin_recs.filtered(lambda rec: rec.storage_id.save_type == "localfs")
         for record in records.with_context(self.env.context):
             record.save_type = "localfs"
         return super(File, self - records)._compute_save_type()
 
     @api.multi
     def _inverse_content(self):
-        records = self.filtered(lambda rec: rec.storage.save_type == "localfs")
+        records = self.filtered(lambda rec: rec.storage_id.save_type == "localfs")
         updates = defaultdict(set)
         for record in records:
             values = self._get_content_inital_vals()
