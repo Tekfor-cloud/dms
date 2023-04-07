@@ -50,7 +50,7 @@ class File(models.Model):
         for record in records:
             values = self._get_content_inital_vals()
             binary = base64.b64decode(record.content or "")
-            values = self._update_content_vals(record, values, binary)
+            values = self._update_content_vals(values, binary)
             updates[tools.frozendict(values)].add(record.id)
             try:
                 full_path = "{}{}{}".format(
