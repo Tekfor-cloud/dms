@@ -20,7 +20,7 @@ class File(models.Model):
         records = bin_recs.filtered(lambda rec: rec.storage_id.save_type == "localfs")
         for record in records.with_context(self.env.context):
             full_path = "{}{}{}".format(
-                record.directory.get_full_path(), sep, record.name
+                record.directory_id.get_full_path(), sep, record.name
             )
             try:
                 if path.exists(full_path):
@@ -54,7 +54,7 @@ class File(models.Model):
             updates[tools.frozendict(values)].add(record.id)
             try:
                 full_path = "{}{}{}".format(
-                    record.directory.get_full_path(), sep, record.name
+                    record.directory_id.get_full_path(), sep, record.name
                 )
                 with open(full_path, "wb") as file:
                     file.write(binary)
@@ -77,14 +77,16 @@ class File(models.Model):
         moved_files = {}
         if "directory_id" in values:
             for rec in self:
-                moved_files[rec.id] = path.join(rec.directory.get_full_path(), rec.name)
+                moved_files[rec.id] = path.join(
+                    rec.directory_id.get_full_path(), rec.name
+                )
 
         res = super(File, self).write(values)
 
         if moved_files:
             for rec in self:
                 src = moved_files[rec.id]
-                dst = path.join(rec.directory.get_full_path(), rec.name)
+                dst = path.join(rec.directory_id.get_full_path(), rec.name)
                 if not path.exists(dst):
                     shutil.move(src, dst)
         return res
