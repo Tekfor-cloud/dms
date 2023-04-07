@@ -29,12 +29,12 @@
     </record>
 
     <template id="assets_backend"
-        name="lease4_ecm_localfs"
+        name="dms_storage_localfs"
         inherit_id="web.assets_backend">
         <xpath expr="."
             position="inside">
             <script type="text/javascript"
-                src="/lease4_ecm_localfs/static/src/js/force_binary.js" />
+                src="/dms_storage_localfs/static/src/js/force_binary.js" />
         </xpath>
     </template>
 </odoo>

@@ -19,9 +19,9 @@ class Directory(models.Model):
         Resync the directory content with local file system (localfs to dms.directory)
         """
         for rec in self:
-            if rec.storage.save_type == "localfs":
+            if rec.storage_id.save_type == "localfs":
 
-                base_path = rec.storage.local_store_directory
+                base_path = rec.storage_id.local_store_directory
                 if not path.exists(base_path):
                     raise ValidationError(
                         _("Base directory does not exist: %s") % (base_path)
@@ -43,10 +43,10 @@ class Directory(models.Model):
                 # List dms directories
                 results = self.search(
                     [
-                        ("storage", "=", rec.storage.id),
+                        ("storage_id", "=", rec.storage_id.id),
                         ("name", "in", lst_dir),
                         ("is_root_directory", "=", False),
-                        ("parent_directory", "=", rec.id),
+                        ("parent_directory_id", "=", rec.id),
                     ]
                 )
 
@@ -60,7 +60,7 @@ class Directory(models.Model):
                             "name": dir_name,
                             "company": rec.company[0].id,
                             "is_root_directory": False,
-                            "parent_directory": rec.id,
+                            "parent_directory_id": rec.id,
                         }
                     )
 
@@ -70,12 +70,12 @@ class Directory(models.Model):
     def get_full_path(self):
         self.ensure_one()
         if self.is_root_directory:
-            if self.storage.save_type == "localfs":
-                return path.join(self.storage.local_store_directory, self.name)
+            if self.storage_id.save_type == "localfs":
+                return path.join(self.storage_id.local_store_directory, self.name)
             else:
                 return self.name
         else:
-            return path.join(self.parent_directory.get_full_path(), self.name)
+            return path.join(self.parent_directory_id.get_full_path(), self.name)
 
     def check_and_create_fs_directory(self, fpath):
         if not path.exists(fpath):
@@ -91,7 +91,7 @@ class Directory(models.Model):
         res = super().write(values)
 
         for rec in self:
-            if rec.storage.save_type == "localfs":
+            if rec.storage_id.save_type == "localfs":
                 src = saved_full_path[rec.id]
                 dst = rec.get_full_path()
                 if src != dst and not path.exists(dst):
@@ -103,16 +103,16 @@ class Directory(models.Model):
     def create(self, values):
         """Create localfs directory"""
         rec = super().create(values)
-        if rec.storage.save_type == "localfs":
-            if values.get("parent_directory"):
+        if rec.storage_id.save_type == "localfs":
+            if values.get("parent_directory_id"):
                 parent_dir = self.env["dms.directory"].browse(
-                    values["parent_directory"]
+                    values["parent_directory_id"]
                 )
                 self.check_and_create_fs_directory(
                     path.join(parent_dir.get_full_path(), rec.name)
                 )
-            elif values.get("root_storage"):
-                root_stg = self.env["dms.storage"].browse(values["root_storage"])
+            elif values.get("root_storage_id"):
+                root_stg = self.env["dms.storage"].browse(values["root_storage_id"])
                 self.check_and_create_fs_directory(
                     path.join(root_stg.local_store_directory, rec.name)
                 )
