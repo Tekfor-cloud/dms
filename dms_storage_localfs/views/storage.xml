@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+
+    Copyright 2023 TEKFor
+    License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
+
+  -->
+<odoo>
+    <record id="view_dms_storage_form"
+        model="ir.ui.view">
+        <field name="name">dms_storage.form</field>
+        <field name="model">dms.storage</field>
+        <field name="inherit_id"
+            ref="dms.view_dms_storage_form" />
+        <field name="arch"
+            type="xml">
+            <group name="save_storage_right"
+                position="inside">
+                <group col="3">
+                    <field name="local_store_directory_id"
+                        attrs="{'invisible':[('save_type','!=','localfs')]}" />
+                    <button type="object"
+                        name="resync_directory"
+                        string="Resync"
+                        attrs="{'invisible':[('save_type','!=','localfs')]}" />
+                </group>
+            </group>
+        </field>
+    </record>
+
+    <template id="assets_backend"
+        name="lease4_ecm_localfs"
+        inherit_id="web.assets_backend">
+        <xpath expr="."
+            position="inside">
+            <script type="text/javascript"
+                src="/lease4_ecm_localfs/static/src/js/force_binary.js" />
+        </xpath>
+    </template>
+</odoo>
