@@ -12,11 +12,6 @@ def get_redis_connection():
 
 
 class SessionSaveConnection(swiftclient.client.Connection):
-    """
-    Heritage de swiftclient.client pour pemettre la sauvegarde
-    du token et de l'url de la connexion dans redis
-    """
-
     def _retry(self, reset_func, func, *args, **kwargs):
         res = super(SessionSaveConnection, self)._retry(
             reset_func, func, *args, **kwargs
