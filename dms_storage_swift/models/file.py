@@ -61,9 +61,9 @@ class File(models.Model):
         return super(File, self - records)._compute_save_type()
 
     @api.model
-    def _update_content_vals(self, record, vals, binary):
+    def _update_content_vals(self, vals, binary):
         vals = super(File, self)._update_content_vals(vals, binary)
-        if not record.swift_object:
+        if not self.swift_object:
             vals.update({"swift_object": str(uuid.uuid4())})
         return vals
 
