@@ -39,7 +39,7 @@ class File(models.Model):
             for rec in records:
                 values = self._get_content_inital_vals()
                 binary = base64.b64decode(rec.content or "")
-                values = self._update_content_vals(rec, values, binary)
+                values = rec._update_content_vals(values, binary)
                 updates[tools.frozendict(values)].add(rec.id)
 
                 conn.put_object(
@@ -62,7 +62,7 @@ class File(models.Model):
 
     @api.model
     def _update_content_vals(self, record, vals, binary):
-        vals = super(File, self)._update_content_vals(record, vals, binary)
+        vals = super(File, self)._update_content_vals(vals, binary)
         if not record.swift_object:
             vals.update({"swift_object": str(uuid.uuid4())})
         return vals
