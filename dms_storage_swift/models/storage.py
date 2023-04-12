@@ -10,7 +10,7 @@ class Storage(models.Model):
     save_type = fields.Selection(selection_add=[("swift", "Swift")])
 
     swift_recovery_directory_id = fields.Many2one(
-        "dms.directory", domain="[('storage', '=', active_id)]"
+        "dms.directory", domain="[('storage_id', '=', active_id)]"
     )
 
     def swift_recovery(self):
@@ -22,7 +22,7 @@ class Storage(models.Model):
                     self._fields["swift_recovery_directory_id"].string
                 )
             )
-        elif self.swift_recovery_directory_id.storage != self:
+        elif self.swift_recovery_directory_id.storage_id != self:
             raise UserError(
                 _("{} must be a folder of current storage").format(
                     self._fields["swift_recovery_directory_id"].string
@@ -32,7 +32,7 @@ class Storage(models.Model):
         self.with_delay()._swift_recovery()
 
     def _swift_recovery(self):
-        swift_object_list = self.storage_files.mapped("swift_object")
+        swift_object_list = self.storage_file_ids.mapped("swift_object")
         conn = get_swift_connection()
         for swift_object in conn.get_container(self.name, full_listing=True)[1]:
             if swift_object["name"] not in swift_object_list:

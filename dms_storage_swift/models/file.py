@@ -18,13 +18,13 @@ class File(models.Model):
 
     def _compute_content(self):
         bin_recs = self.with_context({"bin_size": True})
-        records = bin_recs.filtered(lambda rec: rec.storage.save_type == "swift")
+        records = bin_recs.filtered(lambda rec: rec.storage_id.save_type == "swift")
         if records:
             conn = get_swift_connection()
             for rec in records.with_context(self.env.context):
                 if rec.swift_object:
                     rec.content = base64.b64encode(
-                        conn.get_object(rec.storage.name, rec.swift_object)[1]
+                        conn.get_object(rec.storage_id.name, rec.swift_object)[1]
                     )
                 else:
                     rec.content = False
@@ -32,7 +32,7 @@ class File(models.Model):
 
     @api.multi
     def _inverse_content(self):
-        records = self.filtered(lambda rec: rec.storage.save_type == "swift")
+        records = self.filtered(lambda rec: rec.storage_id.save_type == "swift")
         if records:
             updates = defaultdict(set)
             conn = get_swift_connection()
@@ -43,7 +43,7 @@ class File(models.Model):
                 updates[tools.frozendict(values)].add(rec.id)
 
                 conn.put_object(
-                    rec.storage.name,
+                    rec.storage_id.name,
                     rec.swift_object or values["swift_object"],
                     io.BytesIO(binary),
                 )
@@ -55,7 +55,7 @@ class File(models.Model):
 
     def _compute_save_type(self):
         bin_recs = self.with_context({"bin_size": True})
-        records = bin_recs.filtered(lambda rec: rec.storage.save_type == "swift")
+        records = bin_recs.filtered(lambda rec: rec.storage_id.save_type == "swift")
         for record in records.with_context(self.env.context):
             record.save_type = "swift"
         return super(File, self - records)._compute_save_type()
@@ -84,10 +84,10 @@ class File(models.Model):
     def unlink(self):
         to_delete_in_swift = []
         for rec in self:
-            if rec.storage.save_type == "swift" and rec.swift_object:
+            if rec.storage_id.save_type == "swift" and rec.swift_object:
                 to_delete_in_swift.append(
                     {
-                        "container": rec.storage.name,
+                        "container": rec.storage_id.name,
                         "object": rec.swift_object,
                     }
                 )
