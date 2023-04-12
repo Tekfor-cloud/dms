@@ -12,7 +12,6 @@ from odoo import models, api, tools, exceptions, _
 
 
 class File(models.Model):
-
     _inherit = "dms.file"
 
     def _compute_content(self):
@@ -50,7 +49,7 @@ class File(models.Model):
         for record in records:
             values = self._get_content_inital_vals()
             binary = base64.b64decode(record.content or "")
-            values = self._update_content_vals(values, binary)
+            values = record._update_content_vals(values, binary)
             updates[tools.frozendict(values)].add(record.id)
             try:
                 full_path = "{}{}{}".format(
@@ -73,7 +72,6 @@ class File(models.Model):
     # ==================================================================================
 
     def write(self, values):
-
         moved_files = {}
         if "directory_id" in values:
             for rec in self:
