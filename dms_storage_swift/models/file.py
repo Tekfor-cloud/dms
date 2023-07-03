@@ -30,7 +30,6 @@ class File(models.Model):
                     rec.content = False
         return super(File, self - records)._compute_content()
 
-    @api.multi
     def _inverse_content(self):
         records = self.filtered(lambda rec: rec.storage_id.save_type == "swift")
         if records:
@@ -67,7 +66,6 @@ class File(models.Model):
             vals.update({"swift_object": str(uuid.uuid4())})
         return vals
 
-    @api.multi
     @api.returns("self", lambda value: value.id)
     def copy(self, default=None):
         if not default:
@@ -80,7 +78,6 @@ class File(models.Model):
 
         return super().copy(default)
 
-    @api.multi
     def unlink(self):
         to_delete_in_swift = []
         for rec in self:

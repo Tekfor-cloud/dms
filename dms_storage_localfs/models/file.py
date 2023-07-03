@@ -42,7 +42,6 @@ class File(models.Model):
             record.save_type = "localfs"
         return super(File, self - records)._compute_save_type()
 
-    @api.multi
     def _inverse_content(self):
         records = self.filtered(lambda rec: rec.storage_id.save_type == "localfs")
         updates = defaultdict(set)

@@ -8,7 +8,6 @@ from odoo.exceptions import ValidationError
 
 
 class Storage(models.Model):
-
     _inherit = "dms.storage"
 
     save_type = fields.Selection(
@@ -25,7 +24,6 @@ class Storage(models.Model):
         help="The root directory where files are stored",
     )
 
-    @api.multi
     def resync_directory(self):
         dmsdir_model = self.env["dms.directory"]
         for rec in self:

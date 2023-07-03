@@ -13,7 +13,6 @@ class Directory(models.Model):
 
     _inherit = "dms.directory"
 
-    @api.multi
     def resync_directory(self):
         """
         Resync the directory content with local file system (localfs to dms.directory)
@@ -81,7 +80,6 @@ class Directory(models.Model):
         if not path.exists(fpath):
             makedirs(fpath)
 
-    @api.multi
     def write(self, values):
         """Create localfs directory if needed"""
         saved_full_path = {}

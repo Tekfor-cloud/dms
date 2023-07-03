@@ -52,7 +52,6 @@ class Storage(models.Model):
             conn.put_container(values["name"])
         return rec
 
-    @api.multi
     def write(self, values):
         res = super(Storage, self).write(values)
         if values.get("save_type") == "swift":
