@@ -10,7 +10,6 @@ from odoo.exceptions import ValidationError
 
 
 class Directory(models.Model):
-
     _inherit = "dms.directory"
 
     def resync_directory(self):
@@ -19,7 +18,6 @@ class Directory(models.Model):
         """
         for rec in self:
             if rec.storage_id.save_type == "localfs":
-
                 base_path = rec.storage_id.local_store_directory
                 if not path.exists(base_path):
                     raise ValidationError(
@@ -107,8 +105,8 @@ class Directory(models.Model):
                 self.check_and_create_fs_directory(
                     path.join(parent_dir.get_full_path(), rec.name)
                 )
-            elif values.get("root_storage_id"):
-                root_stg = self.env["dms.storage"].browse(values["root_storage_id"])
+            elif values.get("storage_id"):
+                root_stg = self.env["dms.storage"].browse(values["storage_id"])
                 self.check_and_create_fs_directory(
                     path.join(root_stg.local_store_directory, rec.name)
                 )
