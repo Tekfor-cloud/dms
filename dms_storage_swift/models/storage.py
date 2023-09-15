@@ -7,7 +7,10 @@ from ..utils.connection import get_swift_connection
 class Storage(models.Model):
     _inherit = "dms.storage"
 
-    save_type = fields.Selection(selection_add=[("swift", "Swift")])
+    save_type = fields.Selection(
+        selection_add=[("swift", "Swift")],
+        ondelete={"swift": "set default"},
+    )
 
     swift_recovery_directory_id = fields.Many2one(
         "dms.directory", domain="[('storage_id', '=', active_id)]"

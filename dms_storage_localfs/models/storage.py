@@ -16,7 +16,8 @@ class Storage(models.Model):
                 "localfs",
                 "Stores files in a given directory on local filesystem",
             )
-        ]
+        ],
+        ondelete={"localfs": "set default"},
     )
 
     local_store_directory = fields.Char(
