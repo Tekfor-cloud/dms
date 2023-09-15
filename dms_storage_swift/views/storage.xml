@@ -27,8 +27,7 @@
                     attrs="{'invisible': [('save_type', '!=', 'swift')]}">
                     <group>
                         <field name="swift_recovery_directory_id" />
-                        <label class="o_form_label"
-                            for="">Run recovery in backgroung</label>
+                        <div class="o_form_label">Run recovery in background</div>
                         <div class="oe_read_only">
                             <button type="object"
                                 name="swift_recovery"

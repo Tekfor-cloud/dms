@@ -21,7 +21,6 @@ _logger = logging.getLogger(__name__)
 
 
 class DmsDirectory(models.Model):
-
     _name = "dms.directory"
     _description = "Directory"
 
