@@ -29,6 +29,24 @@ addon | version | maintainers | summary
 
 <!-- prettier-ignore-end -->
 
+## Python dependencies
+
+
+```text
+# For S3 object storage (Exoscale, AWS)
+boto3==1.26.7
+python-slugify==8.0.4
+```
+
+## DMS on S3 storage
+
+
+* `AWS_HOST`: depends of the platform
+* `AWS_REGION`: region's endpoint
+* `AWS_ACCESS_KEY_ID`: depends of the platform
+* `AWS_SECRET_ACCESS_KEY`: depends of the platform
+* `AWS_BUCKETNAME`: `<project>-odoo-prod`
+
 ## Licenses
 
 This repository is licensed under [AGPL-3.0](LICENSE).
