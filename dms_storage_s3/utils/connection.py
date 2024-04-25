@@ -1,7 +1,9 @@
-import boto3
 import logging
+import os
+import boto3
 
 from odoo import _, exceptions
+
 from odoo.tools.config import config
 
 from urllib.parse import urlsplit
@@ -10,7 +12,6 @@ from botocore.exceptions import ClientError, EndpointConnectionError
 from slugify import slugify
 
 _logger = logging.getLogger(__name__)
-_logger.setLevel(logging.DEBUG)
 
 
 class BucketAlreadyExistsException(Exception):
@@ -27,19 +28,15 @@ class NonEmptyBucketException(Exception):
 
 class Connection:
     def __init__(self):
-        host = config.get("aws_host")  # os.environ.get("AWS_HOST")
+        host = _get_env_or_config("aws_host")
 
         # Ensure host is prefixed with a scheme (use https as default)
         if host and not urlsplit(host).scheme:
             host = "https://%s" % host
 
-        self.region_name = config.get("aws_region")  # os.environ.get("AWS_REGION")
-        access_key = config.get(
-            "aws_access_key_id"
-        )  # os.environ.get("AWS_ACCESS_KEY_ID")
-        secret_key = config.get(
-            "aws_secret_access_key"
-        )  # os.environ.get("AWS_SECRET_ACCESS_KEY")
+        self.region_name = _get_env_or_config("aws_region")
+        access_key = _get_env_or_config("aws_access_key_id")
+        secret_key = _get_env_or_config("aws_secret_access_key")
 
         params = {
             "aws_access_key_id": access_key,
@@ -66,7 +63,6 @@ class Connection:
             raise exceptions.UserError(msg)
 
         self._s3_resource = boto3.resource("s3", **params)
-        _logger.debug("s3 resource = %s", self._s3_resource)
         self._s3 = self._s3_resource.meta.client
 
     def create_bucket(self, bucket_name) -> dict:
@@ -82,16 +78,12 @@ class Connection:
         return self._s3.create_bucket(Bucket=bucket_name)
 
     def _bucket_exists(self, bucket_name) -> bool:
-        _logger.debug(self._s3._endpoint)
-        _logger.debug("Test existence de %s", bucket_name)
         try:
             self._s3.head_bucket(Bucket=bucket_name)
         except ClientError as e:
             # If a client error is thrown, then check that it was a 404 error.
             # If it was a 404 error, then the bucket does not exist.
-            _logger.exception("J'ai in client error")
             error_code = e.response["Error"]["Code"]
-            _logger.debug("error code %s", error_code)
             if error_code == "404":
                 return False
             raise exceptions.UserError(str(e))
@@ -106,11 +98,9 @@ class Connection:
             yield o.key
 
     def upload_fileobj(self, fd, bucket_name, key):
-        # TODO : use put_object to store metadata (filename)
         return self._s3.upload_fileobj(fd, bucket_name, key)
 
     def download_fileobj(self, bucket_name, key, fd):
-        # TODO : use get_object to store metadata (filename)
         return self._s3.download_fileobj(bucket_name, key, fd)
 
     def delete_objects(self, bucket_name: str, key_list):
@@ -130,14 +120,18 @@ class Connection:
 
     def delete_bucket(self, bucket_name: str):
         r = self._s3.list_objects_v2(Bucket=bucket_name, MaxKeys=1)
-        _logger.debug("list_objects_v2 response %s", r)
         if r["KeyCount"] > 0:
             raise NonEmptyBucketException(bucket_name)
         self._s3.delete_bucket(Bucket=bucket_name)
 
 
 def get_bucket_name(storage_name: str, user_prefix=None) -> str:
-    prefix = user_prefix or config.get("aws_bucket_prefix")
+    prefix = user_prefix or _get_env_or_config("aws_bucket_prefix")
     if prefix:
         return slugify(f"{prefix} {storage_name}")
     return slugify(storage_name)
+
+
+def _get_env_or_config(key: str) -> str:
+    str_key = str(key)
+    return os.environ.get(str_key.upper()) or config.get(str_key.lower())

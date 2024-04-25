@@ -1,7 +1,12 @@
 from odoo import fields, models, api, _
 from odoo.exceptions import ValidationError, UserError
 
-from ..utils.connection import Connection, BucketAlreadyExistsException, get_bucket_name, NonEmptyBucketException
+from ..utils.connection import (
+    Connection,
+    BucketAlreadyExistsException,
+    get_bucket_name,
+    NonEmptyBucketException,
+)
 
 
 class Storage(models.Model):
