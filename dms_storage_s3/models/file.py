@@ -77,7 +77,7 @@ class File(models.Model):
     def _update_content_vals(self, vals, binary):
         vals = super(File, self)._update_content_vals(vals, binary)
         if not self.s3_object:
-            vals.update({"s3_object": str(uuid.uuid4())})
+            vals.update({"s3_object": self.path_names})
         return vals
 
     @api.returns("self", lambda value: value.id)
