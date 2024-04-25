@@ -20,6 +20,11 @@ class BucketAlreadyExistsException(Exception):
         )
 
 
+class NonEmptyBucketException(Exception):
+    def __init__(self, bucket_name: str):
+        return super().__init__(f"Bucket {bucket_name} is not empty")
+
+
 class Connection:
     def __init__(self):
         host = config.get("aws_host")  # os.environ.get("AWS_HOST")
@@ -108,7 +113,7 @@ class Connection:
         # TODO : use get_object to store metadata (filename)
         return self._s3.download_fileobj(bucket_name, key, fd)
 
-    def delete_objects(self, bucket_name, key_list):
+    def delete_objects(self, bucket_name: str, key_list):
         # delete_objects can delete up to 1000 objects at once, so we tokenize
         # key_list in 1000 item long chunks
 
@@ -123,9 +128,12 @@ class Connection:
                 Bucket=bucket_name, Delete={"Objects": [{"Key": k} for k in chunk]}
             )
 
-    def delete_bucket(self, bucket_name):
-        self._s3.delte_bucket(bucket_name)
-        pass
+    def delete_bucket(self, bucket_name: str):
+        r = self._s3.list_objects_v2(Bucket=bucket_name, MaxKeys=1)
+        _logger.debug("list_objects_v2 response %s", r)
+        if r["KeyCount"] > 0:
+            raise NonEmptyBucketException(bucket_name)
+        self._s3.delete_bucket(Bucket=bucket_name)
 
 
 def get_bucket_name(storage_name: str, user_prefix=None) -> str:

@@ -1,7 +1,7 @@
 from odoo import fields, models, api, _
 from odoo.exceptions import ValidationError, UserError
 
-from ..utils.connection import Connection, BucketAlreadyExistsException, get_bucket_name
+from ..utils.connection import Connection, BucketAlreadyExistsException, get_bucket_name, NonEmptyBucketException
 
 
 class Storage(models.Model):
@@ -47,9 +47,7 @@ class Storage(models.Model):
         If this is the case, the bucket is deleted along with storage"""
         conn = Connection()
         try:
-
-            conn.delete_bucket()
-        except Exception:
-            pass
-
-        raise UserError("TO BE IMPLEMENTED")
+            conn.delete_bucket(get_bucket_name(self.name))
+            super().unlink()
+        except NonEmptyBucketException:
+            raise ValidationError(_("The bucket associated with storage is not empty."))
