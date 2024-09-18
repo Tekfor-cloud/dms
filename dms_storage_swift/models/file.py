@@ -30,41 +30,31 @@ class File(models.Model):
                     rec.content = False
         return super(File, self - records)._compute_content()
 
-    def _inverse_content(self):
-        records = self.filtered(lambda rec: rec.storage_id.save_type == "swift")
-        if records:
-            updates = defaultdict(set)
-            conn = get_swift_connection()
-            for rec in records:
-                values = self._get_content_inital_vals()
-                binary = base64.b64decode(rec.content or "")
-                values = rec._update_content_vals(values, binary)
-                updates[tools.frozendict(values)].add(rec.id)
-
-                conn.put_object(
-                    rec.storage_id.name,
-                    rec.swift_object or values["swift_object"],
-                    io.BytesIO(binary),
-                )
-
-            with self.env.norecompute():
-                for vals, ids in updates.items():
-                    self.browse(ids).write(dict(vals))
-        return super(File, self - records)._inverse_content()
-
     def _compute_save_type(self):
-        bin_recs = self.with_context({"bin_size": True})
-        records = bin_recs.filtered(lambda rec: rec.storage_id.save_type == "swift")
-        for record in records.with_context(self.env.context):
-            record.save_type = "swift"
-        return super(File, self - records)._compute_save_type()
+        for record in self:
+            if record.swift_object:
+                record.save_type = "swift"
+            else:
+                super()._compute_save_type()
 
-    @api.model
     def _update_content_vals(self, vals, binary):
-        vals = super(File, self)._update_content_vals(vals, binary)
-        if not self.swift_object:
-            vals.update({"swift_object": str(uuid.uuid4())})
-        return vals
+        new_vals = super()._update_content_vals(vals, binary)
+        if self.storage_id.save_type == "swift":
+            if not self.swift_object:
+                new_vals.update({"swift_object": str(uuid.uuid4())})
+        return new_vals
+
+    def write(self, vals):
+        self.ensure_one()
+        if self.storage_id.save_type in "swift":
+            binary = vals.pop("content_binary")
+            conn = get_swift_connection()
+            conn.put_object(
+                self.storage_id.name,
+                self.swift_object or vals["swift_object"],
+                io.BytesIO(binary),
+            )
+        return super().write(vals)
 
     @api.returns("self", lambda value: value.id)
     def copy(self, default=None):
