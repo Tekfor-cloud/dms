@@ -46,7 +46,7 @@ class File(models.Model):
 
     def write(self, vals):
         self.ensure_one()
-        if self.storage_id.save_type in "swift":
+        if self.storage_id.save_type in "swift" and "content_binary" in vals:
             binary = vals.pop("content_binary")
             conn = get_swift_connection()
             conn.put_object(
