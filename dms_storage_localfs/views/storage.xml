@@ -1,10 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<!--
-
-    Copyright 2023 TEKFor
-    License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
-
-  -->
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="view_dms_storage_form"
         model="ir.ui.view">
@@ -27,14 +21,4 @@
             </group>
         </field>
     </record>
-
-    <template id="assets_backend"
-        name="dms_storage_localfs"
-        inherit_id="web.assets_backend">
-        <xpath expr="."
-            position="inside">
-            <script type="text/javascript"
-                src="/dms_storage_localfs/static/src/js/force_binary.js" />
-        </xpath>
-    </template>
 </odoo>
