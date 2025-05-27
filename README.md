@@ -21,15 +21,15 @@ Available addons
 ----------------
 addon | version | maintainers | summary
 --- | --- | --- | ---
-[account_dms_field](account_dms_field/) | 16.0.1.0.0 |  | Add dms field for account
-[dms](dms/) | 16.0.1.8.2 |  | Document Management System for Odoo
+[account_dms_field](account_dms_field/) | 16.0.1.0.1 |  | Add dms field for account
+[dms](dms/) | 16.0.1.8.6 |  | Document Management System for Odoo
 [dms_attachment_link](dms_attachment_link/) | 16.0.1.0.0 | [![victoralmau](https://github.com/victoralmau.png?size=30px)](https://github.com/victoralmau) | Dms Attachment Link
 [dms_auto_classification](dms_auto_classification/) | 16.0.1.1.1 | [![victoralmau](https://github.com/victoralmau.png?size=30px)](https://github.com/victoralmau) | Auto classify documents into DMS
-[dms_field](dms_field/) | 16.0.1.1.1 |  | Create DMS View and allow to use them inside a record
-[dms_field_auto_classification](dms_field_auto_classification/) | 16.0.1.0.1 | [![victoralmau](https://github.com/victoralmau.png?size=30px)](https://github.com/victoralmau) | Auto classify files into embedded DMS
+[dms_field](dms_field/) | 16.0.1.1.5 |  | Create DMS View and allow to use them inside a record
+[dms_field_auto_classification](dms_field_auto_classification/) | 16.0.1.0.3 | [![victoralmau](https://github.com/victoralmau.png?size=30px)](https://github.com/victoralmau) | Auto classify files into embedded DMS
 [dms_storage](dms_storage/) | 16.0.1.0.0 |  | Integrate DMS with external Storages
 [dms_user_role](dms_user_role/) | 16.0.1.0.0 | [![victoralmau](https://github.com/victoralmau.png?size=30px)](https://github.com/victoralmau) | DMS User Role
-[hr_dms_field](hr_dms_field/) | 16.0.1.0.1 | [![victoralmau](https://github.com/victoralmau.png?size=30px)](https://github.com/victoralmau) | Add dms field for employees
+[hr_dms_field](hr_dms_field/) | 16.0.1.1.0 | [![victoralmau](https://github.com/victoralmau.png?size=30px)](https://github.com/victoralmau) | Add dms field for employees
 [web_editor_media_dialog_dms](web_editor_media_dialog_dms/) | 16.0.1.0.0 |  | Integrate DMS with media dialog of web editor
 
 [//]: # (end addons)

@@ -11,6 +11,7 @@ class TestHrDmsField(BaseCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.env = cls.env(context=dict(cls.env.context, test_dms_field=True))
         cls.template = cls.env.ref("hr_dms_field.field_template_employee")
         cls.storage = cls.template.storage_id
         cls.access_group = cls.template.group_ids
@@ -61,6 +62,31 @@ class TestHrDmsField(BaseCommon):
         # dms_field/static/src/views/dms_list/dms_list_renderer.esm.js#L450
         employee.invalidate_model()
         group_custom = employee.dms_directory_ids.group_ids.filtered("dms_field_ref")
+        self.assertIn(self.user, group_custom.explicit_user_ids)
+
+    def test_employee_write_custom(self):
+        read_access_hr_employee_group = self.env.ref(
+            "hr_dms_field.read_access_hr_employee_group"
+        )
+        read_access_hr_employee_group.write(
+            {
+                "group_ids": [(5, 0)],
+                "explicit_user_ids": [(6, 0, self.env.ref("base.user_admin").ids)],
+            }
+        )
+        employee = self.employee_model.create({"name": "Test employee"})
+        employee.invalidate_recordset()
+        directory = employee.dms_directory_ids
+        self.assertEqual(len(directory), 1)
+        directory_0 = employee.dms_directory_ids[0]
+        group_custom = directory_0.group_ids.filtered("dms_field_ref")
+        self.assertFalse(group_custom.explicit_user_ids)
+        # Use the demo user to modify the employee and link the user, it does not
+        # have access to the directory.
+        demo = self.env.ref("base.user_demo")
+        employee = employee.with_user(demo)
+        employee.invalidate_recordset()
+        employee.write({"user_id": self.user.id})
         self.assertIn(self.user, group_custom.explicit_user_ids)
 
     @mute_logger("odoo.models.unlink")

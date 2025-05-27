@@ -3,6 +3,7 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 
 from odoo import api, fields, models
+from odoo.tools import config
 
 
 class DMSFieldMixin(models.AbstractModel):
@@ -30,10 +31,18 @@ class DMSFieldMixin(models.AbstractModel):
 
     @api.model_create_multi
     def create(self, vals_list):
-        """Create a dms directory when creating the record if exist a template."""
+        """Create a dms directory when creating the record if exist a template.
+        We need to avoid applying a template except when testing functionality
+        with dms_field* modules to avoid the error that a directory with the same
+        name already exists (example: create partner).
+        """
         result = super().create(vals_list)
+        test_condition = not config["test_enable"] or self.env.context.get(
+            "test_dms_field"
+        )
         if (
-            not self.env.context.get("skip_track_dms_field_template")
+            test_condition
+            and not self.env.context.get("skip_track_dms_field_template")
             and self._name in self.models_to_track_dms_field_template()
         ):
             template = self.env["dms.field.template"].with_context(res_model=self._name)
@@ -47,7 +56,8 @@ class DMSFieldMixin(models.AbstractModel):
         (name and explicit_user_ids).
         """
         res = super().write(vals)
-        for item in self.filtered("dms_directory_ids"):
+        # Apply sudo() in case the user does not have access to the directory
+        for item in self.sudo().filtered("dms_directory_ids"):
             if "user_id" in vals:
                 template = self.env["dms.field.template"]._get_template_from_model(
                     item._name
@@ -60,7 +70,8 @@ class DMSFieldMixin(models.AbstractModel):
         """When deleting a record, we also delete the linked directories and the
         auto-generated access group.
         """
-        for record in self.filtered("dms_directory_ids"):
+        # Apply sudo() in case the user does not have access to the directory
+        for record in self.sudo().filtered("dms_directory_ids"):
             group = (
                 self.env["dms.access.group"].sudo()._get_item_from_dms_field_ref(record)
             )
